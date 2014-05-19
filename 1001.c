@@ -27,7 +27,7 @@ main()
 	char *buf = malloc(BUFSIZE);
 	char *buftop = buf;
 	char *bufend = buf + BUFSIZE;
-	unsigned long int lnum;
+	unsigned long long lnum;
 	char numstr[MAXNUM];
 	char *sp;
 	int n;
@@ -48,7 +48,7 @@ main()
 		*sp = '\0';
 		reverse(numstr);
 		lnum = strtoul(numstr, (char **) NULL, 10);
-		printf("%.4f\n", sqrt(lnum));
+		printf("%.4L\n", sqrt(lnum));
 	}
 }
 
