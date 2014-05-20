@@ -3,32 +3,56 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
-#include <iterator>
 #include <string>
-#include <functional>
+#include <set>
 
 using namespace std;
 
+int nametoi(const string& name)
+{
+	int val {0};
+	for (int i = 0; i < name.length(); i++)
+		val += name[i] * (i + 1);
+
+	return val;
+}
+
+
+template<class T>
+int find(T& elem, T& base, vector<set<T>>& sets)
+{
+	find(elem, base, sets
+}
+
+template<class T>
+void print_set(T& set)
+{
+	for (auto& elem : set)
+		cout << elem << ' ';
+}
+
+typedef set<string> Set;
 int main(int argc, char *argv[])
 {
 	ifstream in("1837.test");
-	typedef vector<vector<string>> team_t;
-	team_t teams;
 
-	string line;
+	string name, line;
+	Set members;
+	vector<Set> teams;
+
 	while (getline(in, line)) {
-		istringstream iss(line);
-		istream_iterator<string> first_iit{iss};
-		istream_iterator<string> last_iit{};
-		vector<string> words {first_iit, last_iit};
-		teams.push_back(words);
+		Set team;
+		istringstream is_team(line);
+		while (is_team >> name) {
+			members.insert(name);
+			team.insert(name);
+
+		}
+		teams.push_back(team);
+		team.empty();
 	}
 
-	hash<string> str_hash;
-	for (team_t::iterator it = teams.begin(); it != teams.end(); ++it) {
-		for (vector<string>::iterator it2 = (*it).begin(); it2 != (*it).end(); ++it2) {
-			cout << str_hash(*it2) << ' ';
-		}
-		cout << endl;
-	}
+	find("Oparin", "Isenbaev", teams);
+
+	print_set(members);
 }
