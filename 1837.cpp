@@ -8,61 +8,69 @@
 
 using namespace std;
 
-int nametoi(const string& name)
-{
-	int val {0};
-	for (int i = 0; i < name.length(); i++)
-		val += name[i] * (i + 1);
-
-	return val;
-}
-namespace local {
-
 template<class T>
-int find(T& elem, T& base, vector<set<T>>& v)
-{
-	static int i;
-	static int descent;
-
-	if (i == v.size()) // walked through all vector
-		return -1;
-
-	set<T>& cur_set = v[i];
-	auto elem_it = cur_set.find(elem);
-	auto base_it = cur_set.find(base);
-	auto outside = cur_set.end();
-#if 1
-	if (elem_it != outside && base_it != outside) // found direct link elem <--> base
-		return (elem_it == base_it) ? 0 : 1;
-	else if (elem_it != outside && cur_set.size() > 1) { // found entry point for undirect relation
-		cur_set.erase(elem_it); // exclude current element;
-		auto intermedium = cur_set.begin(); // switch to next intermedium element
-		T elem = *intermedium;
-		return find(elem, base, v);
-	} else { // switch to next set
-		i++;
-		return find(elem, base, v);
-	}
-#endif
-}
-
-} // namespace local
-
-template<class T>
-void print_set(T& set)
+void print(T& set)
 {
 	for (auto& elem : set)
 		cout << elem << ' ';
+	cout << endl;
 }
 
 typedef set<string> Set;
+
+Set& operator+=(Set& lvalue, const Set& rvalue) {
+	for (auto& elem : rvalue)
+		lvalue.insert(elem);
+
+	return lvalue;
+}
+void evaluate_members(vector<Set>& teams, Set& members, string& base_member)
+{
+	vector<Set> results;
+
+	Set search_set {base_member};
+	while (!search_set.empty()) {
+		results.push_back(search_set);
+		Set next_search_set {};
+		for (auto& member : search_set) {
+			for (auto team_it = teams.begin(); team_it != teams.end(); team_it++) {
+				auto& team = *team_it;
+				if (team.find(member) != team.end()) {
+					next_search_set += team;
+					teams.erase(team_it);
+				}
+			}
+			next_search_set.erase(member);
+		}
+		search_set = next_search_set;
+	}
+	Set others;
+	for (auto& team : teams)
+		others += team;
+	results.push_back(others);
+
+	for (auto it = results.begin(); it < results.end() - 1; it++) {
+		static int level;
+		cout << "level " << level++ << endl;
+		auto& team = *it;
+		print(team);
+	}
+	cout << "undefined" << endl;
+	print(results.back());
+}
+
 int main(int argc, char *argv[])
 {
-	ifstream in("1837.test");
+	const char *file = "1837.test";
+	string base_member {"Isenbaev"};
+	if (argc == 2)
+		file = argv[1];
+
+	ifstream in(file);
 
 	string name, line;
 	Set members;
-	vector<set<string>> teams;
+	vector<Set> teams;
 
 	while (getline(in, line)) {
 		Set team;
@@ -76,23 +84,9 @@ int main(int argc, char *argv[])
 		team.empty();
 	}
 
-	string elem {"Chevdar"};
-	string base {"Isenbaev"};
-	cout << "Looking for: " << base << endl << "--\n";
+	cout << "Looking for: " << base_member << endl << "--\n";
 
-#if 0
-	for (auto& team : teams) {
-		auto elem_it = team.find(elem);
-		auto outside = team.end();
-		if (elem_it != outside) { // found searching entry point
-#endif
-			cout << "Find target: " << elem << endl;
-			int res = local::find(elem, base, teams);
-			cout << "Find result: " << res << endl;
-#if 0
-		}
-	}
+	evaluate_members(teams, members, base_member);
 
-	print_set(members);
-#endif
+//	print(members);
 }

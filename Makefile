@@ -1,5 +1,4 @@
-CFLAGS := -std=c++0x
+CXXFLAGS = -std=c++0x -g
 
 %:
-	$(CXX) $(CFLAGS) $@.cpp
-
+	$(CXX) $(CXXFLAGS) $@.cpp
