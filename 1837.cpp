@@ -5,15 +5,27 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <map>
+#include <iterator>
+#include <cassert>
+#include <cstdlib>
 
 using namespace std;
 
 template<class T>
-void print(T& set)
+void printc(T& set)
 {
 	for (auto& elem : set)
 		cout << elem << ' ';
 	cout << endl;
+}
+
+template<class T>
+void printv(T& vec) {
+	int i = 0;
+	for (auto& elem : vec) {
+		printc(elem);
+	}
 }
 
 typedef set<string> Set;
@@ -24,7 +36,7 @@ Set& operator+=(Set& lvalue, const Set& rvalue) {
 
 	return lvalue;
 }
-void evaluate_members(vector<Set>& teams, Set& members, string& base_member)
+vector<Set> evaluate_members(vector<Set>& teams, Set& members, string& base_member)
 {
 	vector<Set> results;
 
@@ -33,46 +45,47 @@ void evaluate_members(vector<Set>& teams, Set& members, string& base_member)
 		results.push_back(search_set);
 		Set next_search_set {};
 		for (auto& member : search_set) {
-			for (auto team_it = teams.begin(); team_it != teams.end(); team_it++) {
-				auto& team = *team_it;
-				if (team.find(member) != team.end()) {
-					next_search_set += team;
-					teams.erase(team_it);
+			while (true) {
+				bool found {false};
+				for (auto team_it = teams.begin(); team_it != teams.end(); team_it++) {
+					auto& team = *team_it;
+					if (team.find(member) != team.end()) {
+						next_search_set += team;
+						teams.erase(team_it);
+						found = true;
+						break;
+					}
 				}
+				if (!found) break;
 			}
 			next_search_set.erase(member);
 		}
 		search_set = next_search_set;
 	}
-	Set others;
-	for (auto& team : teams)
-		others += team;
-	results.push_back(others);
 
-	for (auto it = results.begin(); it < results.end() - 1; it++) {
-		static int level;
-		cout << "level " << level++ << endl;
-		auto& team = *it;
-		print(team);
-	}
-	cout << "undefined" << endl;
-	print(results.back());
+	Set undef;
+	for (auto& team : teams)
+		undef += team;
+
+	results.push_back(undef);
+
+	return results;
 }
 
 int main(int argc, char *argv[])
 {
-	const char *file = "1837.test";
 	string base_member {"Isenbaev"};
-	if (argc == 2)
-		file = argv[1];
 
-	ifstream in(file);
-
-	string name, line;
 	Set members;
 	vector<Set> teams;
 
-	while (getline(in, line)) {
+	string name, line;
+
+	assert(getline(cin, line));
+	int n = atoi(line.c_str());
+	assert(n >= 1 && n <= 100);
+
+	while (getline(cin, line)) {
 		Set team;
 		istringstream is_team(line);
 		while (is_team >> name) {
@@ -84,9 +97,29 @@ int main(int argc, char *argv[])
 		team.empty();
 	}
 
-	cout << "Looking for: " << base_member << endl << "--\n";
+	vector<Set> vals = evaluate_members(teams, members, base_member);
+	if (vals.size() == 2) // there is no Isenbaev in list
+		vals.erase(vals.begin());
+#if 0
+	printv(vals);
+#endif
+	map<string, int> results;
 
-	evaluate_members(teams, members, base_member);
+	int undefined_level = vals.size() - 1;
 
-//	print(members);
+	while (!vals.empty()) {
+		int level = vals.size() - 1;
+		for (auto& member : vals.back())
+			results.insert(pair<string, int>(member, level));
+		vals.pop_back();
+	}
+
+	for (auto it = results.begin(); it != results.end(); it++) {
+		cout << it->first << ' ';
+		if (it->second == undefined_level)
+			cout << "undefined";
+		else
+			cout << it->second;
+		cout << endl;
+	}
 }
