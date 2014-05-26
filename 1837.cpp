@@ -100,9 +100,7 @@ int main(int argc, char *argv[])
 	vector<Set> vals = evaluate_members(teams, members, base_member);
 	if (vals.size() == 2) // there is no Isenbaev in list
 		vals.erase(vals.begin());
-#if 0
-	printv(vals);
-#endif
+
 	map<string, int> results;
 
 	int undefined_level = vals.size() - 1;
