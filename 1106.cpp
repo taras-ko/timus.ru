@@ -19,7 +19,13 @@ public:
 	ostream& operator<<(ostream& os, const X& x) {
 		os << x.id;
 	}
+	int get_team() const { return team; }
 	operator bool() const { return id != cnt - 1; }
+	string get_id() const {
+		stringstream ss;
+		ss << id;
+		return string(ss.str());
+	}
 	void switch_team() { team ^= 1; }
 	bool has_opposite() const {
 		for (auto& fr : friends)
@@ -54,6 +60,7 @@ public:
 	}
 	int colision_rate() const;
 	void print() const;
+	void print_result() const;
 };
 
 
@@ -72,6 +79,20 @@ void Suite::print() const
 		px->print();
 	cout << "Rate: " << this->colision_rate() << endl;
 }
+
+void Suite::print_result() const
+{
+	int cnt = 0;
+	string result;
+	for (X *px = suite; *px; px++)
+		if (px->get_team() == 0) {
+			cnt++;
+			result += px->get_id() + " ";
+		}
+	cout << cnt << endl;
+	cout << result << endl;
+}
+
 
 //void process_input()
 int main()
@@ -93,13 +114,16 @@ int main()
 		}
 	}
 
-	suite.print();
-	for (int i = 1; i <= n; i++) {
-		if (!suite[i].has_opposite())
-			suite[i].switch_team();
+//	suite.print();
+	while (suite.colision_rate() != 0) {
+		for (int i = 1; i <= n; i++) {
+			if (!suite[i].has_opposite())
+				suite[i].switch_team();
+		}
 	}
-	cout << endl;
-	suite.print();
+	suite.print_result();
+//	cout << endl;
+//	suite.print();
 }
 
 #if 0
